@@ -1,0 +1,12 @@
+﻿<Window x:Class="ExpressAgent.Auth.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStartupLocation="CenterScreen"
+        Title="Genesys Cloud Login"
+        Height="600"
+        Width="800"
+        Loaded="Window_Loaded">
+    <DockPanel>
+        <WindowsFormsHost x:Name="BrowserHost" />
+    </DockPanel>
+</Window>
