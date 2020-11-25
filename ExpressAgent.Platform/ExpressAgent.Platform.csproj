@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpressAgent.Auth\ExpressAgent.Auth.csproj" />
+    <ProjectReference Include="..\ExpressAgent.Notifications\ExpressAgent.Notifications.csproj" />
   </ItemGroup>
 
 </Project>

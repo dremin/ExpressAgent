@@ -29,5 +29,20 @@ namespace ExpressAgent
             Window = new AgentWindow(Session);
             Window.Show();
         }
+
+        private void Application_SessionEnding(object sender, SessionEndingCancelEventArgs e)
+        {
+            OnExit();
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            OnExit();
+        }
+
+        private void OnExit()
+        {
+            Session?.Dispose();
+        }
     }
 }

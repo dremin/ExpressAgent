@@ -11,6 +11,7 @@ namespace ExpressAgent.Auth
     /// </summary>
     public partial class LoginWindow : Window
     {
+        private bool QuitOnClose = true;
         private OAuthWebBrowser AuthBrowser;
         private AuthSession Session;
         private string ClientId = "6a53129d-0f25-479f-89d7-63d91faa24b0";
@@ -65,7 +66,16 @@ namespace ExpressAgent.Auth
             {
                 Debug.WriteLine("LoginWindow: Successfully obtained access token");
                 Session.AuthToken = accessToken;
+                QuitOnClose = false;
                 Close();
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (QuitOnClose)
+            {
+                System.Windows.Application.Current.Shutdown();
             }
         }
     }

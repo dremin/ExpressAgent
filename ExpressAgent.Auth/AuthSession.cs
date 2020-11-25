@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Windows;
 
 namespace ExpressAgent.Auth
 {
@@ -50,6 +48,13 @@ namespace ExpressAgent.Auth
 
             LoginWindow window = new LoginWindow(this);
             window.Show();
+        }
+
+        public void Logout()
+        {
+            // TODO
+            MessageBox.Show("Log out");
+            Application.Current.Shutdown();
         }
 
         #region INotifyPropertyChanged

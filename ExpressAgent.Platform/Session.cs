@@ -2,22 +2,47 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using PureCloudPlatform.Client.V2.Api;
 using PureCloudPlatform.Client.V2.Client;
-using PureCloudPlatform.Client.V2.Extensions;
+using PureCloudPlatform.Client.V2.Model;
 using System.Diagnostics;
+using System.Linq;
+using ExpressAgent.Notifications;
 
 namespace ExpressAgent.Platform
 {
-    public class Session : INotifyPropertyChanged
+    public class Session : INotifyPropertyChanged, IDisposable
     {
-        public ConversationsApi ConversationsApi = new ConversationsApi();
-        public RoutingApi RoutingApi = new RoutingApi();
-        public UsersApi UsersApi = new UsersApi();
+        public ConversationHelper Conversations { get; set; }
+        public PresenceHelper Presence { get; set; }
+        public RoutingHelper Routing { get; set; }
+        public UserHelper Users { get; set; }
+        public Websocket NotificationsWebsocket;
+
+        private UserMe _CurrentUser;
+        public UserMe CurrentUser
+        {
+            get
+            {
+                return _CurrentUser;
+            }
+            set
+            {
+                if (value != _CurrentUser)
+                {
+                    _CurrentUser = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public Session()
         {
             Configuration.Default.ApiClient.setBasePath(PureCloudRegionHosts.us_east_1);
+
+            Conversations = new ConversationHelper(this);
+            Presence = new PresenceHelper(this);
+            Routing = new RoutingHelper(this);
+            Users = new UserHelper(this);
 
             if (!AuthSession.Current.HasToken)
             {
@@ -29,11 +54,33 @@ namespace ExpressAgent.Platform
             Authenticated += Session_Authenticated;
         }
 
+        public void HandleException(ApiException e)
+        {
+            Debug.WriteLine(e.Message);
+
+            if (e.ErrorCode == 401)
+            {
+                AuthSession.Current.Authenticate();
+            }
+        }
+
+        private void SetInitialPresence()
+        {
+            OrganizationPresence availablePresence = Presence.OrgPresences.Where(p => p.SystemPresence == "Available" && p.Primary == true).First();
+            Presence.SetUserPresence(CurrentUser.Id, availablePresence.Id);
+        }
+
         private void Session_Authenticated(object sender, EventArgs e)
         {
-            // sub to conv and presence
-            // set presence
-            // get existing conv list
+            NotificationsWebsocket = new Websocket(CurrentUser.Id)
+            {
+                ConversationEventDelegate = Conversations.HandleConversationEvent,
+                PresenceEventDelegate = Presence.HandlePresenceEvent,
+                RoutingStatusEventDelegate = Presence.HandleRoutingStatusEvent
+            };
+
+            SetInitialPresence();
+            Conversations.GetActiveConversations();
         }
 
         private void AuthSession_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -42,13 +89,21 @@ namespace ExpressAgent.Platform
             {
                 Configuration.Default.AccessToken = (sender as AuthSession).AuthToken;
 
+                CurrentUser = Users.GetCurrentUser();
+
                 Debug.WriteLine("Session: Authenticated successfully");
+
                 Authenticated?.Invoke(this, new EventArgs());
             }
         }
 
         public EventHandler Authenticated;
         public EventHandler Unauthenticated;
+
+        public void Dispose()
+        {
+            NotificationsWebsocket?.Dispose();
+        }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;

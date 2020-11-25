@@ -7,7 +7,8 @@
         Height="600"
         Width="800"
         Closed="Window_Closed">
-    <Grid>
-        <TextBlock x:Name="AgentNameTextBlock" />
-    </Grid>
+    <StackPanel Orientation="Vertical">
+        <TextBlock Text="{Binding CurrentUser.Name}" />
+        <TextBlock Text="{Binding Presence.CurrentPresence.Name}" />
+    </StackPanel>
 </Window>
