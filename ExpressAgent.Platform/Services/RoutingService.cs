@@ -1,13 +1,13 @@
 ﻿using PureCloudPlatform.Client.V2.Api;
 
-namespace ExpressAgent.Platform
+namespace ExpressAgent.Platform.Services
 {
-    public class RoutingHelper
+    public class RoutingService
     {
         private RoutingApi RoutingApi = new RoutingApi();
         private Session Session;
 
-        public RoutingHelper(Session session)
+        public RoutingService(Session session)
         {
             Session = session;
         }

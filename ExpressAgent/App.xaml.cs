@@ -16,6 +16,7 @@ namespace ExpressAgent
         {
             Session = new Session();
             Session.Authenticated += Session_Authenticated;
+            Session.Unauthenticated += Session_Unauthenticated;
         }
 
         private void Session_Authenticated(object sender, EventArgs e)
@@ -28,6 +29,15 @@ namespace ExpressAgent
 
             Window = new AgentWindow(Session);
             Window.Show();
+        }
+
+        private void Session_Unauthenticated(object sender, EventArgs e)
+        {
+            if (Window != null && Window.IsVisible)
+            {
+                Window.QuitOnClose = false;
+                Window.Close();
+            }
         }
 
         private void Application_SessionEnding(object sender, SessionEndingCancelEventArgs e)

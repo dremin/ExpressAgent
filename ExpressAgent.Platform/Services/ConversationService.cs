@@ -5,16 +5,16 @@ using PureCloudPlatform.Client.V2.Model;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace ExpressAgent.Platform
+namespace ExpressAgent.Platform.Services
 {
-    public class ConversationHelper
+    public class ConversationService
     {
         private ConversationsApi ConversationsApi = new ConversationsApi();
         private Session Session;
 
         public ObservableCollection<Conversation> ActiveConversations = new ObservableCollection<Conversation>();
 
-        public ConversationHelper(Session session)
+        public ConversationService(Session session)
         {
             Session = session;
         }

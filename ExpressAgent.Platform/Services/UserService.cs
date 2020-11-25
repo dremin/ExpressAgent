@@ -4,14 +4,14 @@ using PureCloudPlatform.Client.V2.Model;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace ExpressAgent.Platform
+namespace ExpressAgent.Platform.Services
 {
-    public class UserHelper
+    public class UserService
     {
         private UsersApi UsersApi = new UsersApi();
         private Session Session;
 
-        public UserHelper(Session session)
+        public UserService(Session session)
         {
             Session = session;
         }

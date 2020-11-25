@@ -7,15 +7,17 @@ using PureCloudPlatform.Client.V2.Model;
 using System.Diagnostics;
 using System.Linq;
 using ExpressAgent.Notifications;
+using ExpressAgent.Platform.Models;
+using ExpressAgent.Platform.Services;
 
 namespace ExpressAgent.Platform
 {
     public class Session : INotifyPropertyChanged, IDisposable
     {
-        public ConversationHelper Conversations { get; set; }
-        public PresenceHelper Presence { get; set; }
-        public RoutingHelper Routing { get; set; }
-        public UserHelper Users { get; set; }
+        public ConversationService Conversations { get; set; }
+        public PresenceService Presence { get; set; }
+        public RoutingService Routing { get; set; }
+        public UserService Users { get; set; }
         public Websocket NotificationsWebsocket;
 
         private UserMe _CurrentUser;
@@ -39,10 +41,10 @@ namespace ExpressAgent.Platform
         {
             Configuration.Default.ApiClient.setBasePath(PureCloudRegionHosts.us_east_1);
 
-            Conversations = new ConversationHelper(this);
-            Presence = new PresenceHelper(this);
-            Routing = new RoutingHelper(this);
-            Users = new UserHelper(this);
+            Conversations = new ConversationService(this);
+            Presence = new PresenceService(this);
+            Routing = new RoutingService(this);
+            Users = new UserService(this);
 
             if (!AuthSession.Current.HasToken)
             {
@@ -52,6 +54,7 @@ namespace ExpressAgent.Platform
             AuthSession.Current.PropertyChanged += AuthSession_PropertyChanged;
 
             Authenticated += Session_Authenticated;
+            Unauthenticated += Session_Unauthenticated;
         }
 
         public void HandleException(ApiException e)
@@ -60,14 +63,8 @@ namespace ExpressAgent.Platform
 
             if (e.ErrorCode == 401)
             {
-                AuthSession.Current.Authenticate();
+                Unauthenticated?.Invoke(this, new EventArgs());
             }
-        }
-
-        private void SetInitialPresence()
-        {
-            OrganizationPresence availablePresence = Presence.OrgPresences.Where(p => p.SystemPresence == "Available" && p.Primary == true).First();
-            Presence.SetUserPresence(CurrentUser.Id, availablePresence.Id);
         }
 
         private void Session_Authenticated(object sender, EventArgs e)
@@ -79,8 +76,15 @@ namespace ExpressAgent.Platform
                 RoutingStatusEventDelegate = Presence.HandleRoutingStatusEvent
             };
 
-            SetInitialPresence();
+            Presence.SetInitialPresence();
             Conversations.GetActiveConversations();
+        }
+
+        private void Session_Unauthenticated(object sender, EventArgs e)
+        {
+            NotificationsWebsocket?.Dispose();
+
+            AuthSession.Current.Authenticate();
         }
 
         private void AuthSession_PropertyChanged(object sender, PropertyChangedEventArgs e)
