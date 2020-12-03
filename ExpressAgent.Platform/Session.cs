@@ -9,6 +9,7 @@ using System.Linq;
 using ExpressAgent.Notifications;
 using ExpressAgent.Platform.Models;
 using ExpressAgent.Platform.Services;
+using PureCloudPlatform.Client.V2.Api;
 
 namespace ExpressAgent.Platform
 {
@@ -41,10 +42,10 @@ namespace ExpressAgent.Platform
         {
             Configuration.Default.ApiClient.setBasePath(PureCloudRegionHosts.us_east_1);
 
-            Conversations = new ConversationService(this);
-            Presence = new PresenceService(this);
-            Routing = new RoutingService(this);
-            Users = new UserService(this);
+            Conversations = new ConversationService(new ConversationsApi(), this);
+            Presence = new PresenceService(new PresenceApi(), this);
+            Routing = new RoutingService(new RoutingApi(), this);
+            Users = new UserService(new UsersApi(), this);
 
             if (!AuthSession.Current.HasToken)
             {
@@ -77,6 +78,7 @@ namespace ExpressAgent.Platform
             };
 
             Presence.SetInitialPresence();
+            Routing.SetQueueCollection();
             Conversations.GetActiveConversations();
         }
 

@@ -1,4 +1,5 @@
-﻿using ExpressAgent.Platform.Models;
+﻿using ExpressAgent.Platform.Abstracts;
+using ExpressAgent.Platform.Models;
 using PureCloudPlatform.Client.V2.Api;
 using PureCloudPlatform.Client.V2.Client;
 using PureCloudPlatform.Client.V2.Extensions.Notifications;
@@ -12,11 +13,8 @@ using System.Runtime.CompilerServices;
 
 namespace ExpressAgent.Platform.Services
 {
-    public class PresenceService : INotifyPropertyChanged
+    public class PresenceService : PlatformService<PresenceApi>, INotifyPropertyChanged
     {
-        private PresenceApi PresenceApi = new PresenceApi();
-        private Session Session;
-
         private ObservableCollection<ExpressPresence> _OrgPresences;
         public ObservableCollection<ExpressPresence> OrgPresences
         {
@@ -53,9 +51,8 @@ namespace ExpressAgent.Platform.Services
             }
         }
 
-        public PresenceService(Session session)
+        public PresenceService(PresenceApi apiInstance, Session session) : base(apiInstance, session)
         {
-            Session = session;
         }
 
         public List<ExpressPresence> GetPresences(int pageNumber = 0)
@@ -64,7 +61,7 @@ namespace ExpressAgent.Platform.Services
             {
                 Debug.WriteLine($"Presence: Calling GetPresencedefinitions");
 
-                OrganizationPresenceEntityListing result = PresenceApi.GetPresencedefinitions(pageNumber);
+                OrganizationPresenceEntityListing result = ApiInstance.GetPresencedefinitions(pageNumber);
                 List<ExpressPresence> presences = new List<ExpressPresence>();
 
                 foreach(OrganizationPresence presence in result.Entities)
@@ -96,7 +93,7 @@ namespace ExpressAgent.Platform.Services
             {
                 Debug.WriteLine($"Presence: Calling GetUserPresencesPurecloud");
 
-                UserPresence userPresence = PresenceApi.GetUserPresencesPurecloud(userId);
+                UserPresence userPresence = ApiInstance.GetUserPresencesPurecloud(userId);
 
                 return FromUserPresence(userPresence);
             }
@@ -123,7 +120,7 @@ namespace ExpressAgent.Platform.Services
 
                 Debug.WriteLine($"Presence: Calling PatchUserPresencesPurecloud");
 
-                UserPresence userPresence = PresenceApi.PatchUserPresencesPurecloud(userId, body);
+                UserPresence userPresence = ApiInstance.PatchUserPresencesPurecloud(userId, body);
 
                 return userPresence.PresenceDefinition.Id == presenceId;
             }
@@ -137,14 +134,14 @@ namespace ExpressAgent.Platform.Services
 
         public bool SetInitialPresence()
         {
-            ExpressPresence availablePresence = OrgPresences.Where(p => p.SystemPresence == "Available" && p.Primary == true).First();
+            ExpressPresence availablePresence = OrgPresences.Where(p => p.SystemPresence == "Available" && p.Primary == true).FirstOrDefault();
             return SetUserPresence(Session.CurrentUser.Id, availablePresence.Id);
         }
 
         #region Conversion
         public ExpressPresence FromUserPresence(UserPresence userPresence)
         {
-            ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == userPresence.PresenceDefinition.Id).First();
+            ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == userPresence.PresenceDefinition.Id).FirstOrDefault();
 
             return new ExpressPresence
             {
@@ -190,7 +187,7 @@ namespace ExpressAgent.Platform.Services
             if (presenceEvent.EventBody.Source == "PURECLOUD")
             {
                 // because the presence name doesn't come through in the notification, match up with our presence list using the ID
-                ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == presenceEvent.EventBody.PresenceDefinition.Id).First();
+                ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == presenceEvent.EventBody.PresenceDefinition.Id).FirstOrDefault();
 
                 Debug.WriteLine($"Presence: Presence event received: New presence is {orgPresence.Name} Message: {presenceEvent.EventBody.Message}");
 

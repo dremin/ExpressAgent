@@ -3,6 +3,7 @@ using PureCloudPlatform.Client.V2.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows;
 
 namespace ExpressAgent.Notifications
 {
@@ -24,45 +25,48 @@ namespace ExpressAgent.Notifications
 
         private void Handler_NotificationReceived(INotificationData notificationData)
         {
-            switch (notificationData)
+            Application.Current.Dispatcher.BeginInvoke(new System.Action(() =>
             {
-                case NotificationData<ConversationEventTopicConversation> conversationEvent:
-                    if (ConversationEventDelegate != null)
-                    {
-                        ConversationEventDelegate(conversationEvent);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Websocket: ConversationEventDelegate is null");
-                    }
-                    break;
-                case NotificationData<PresenceEventUserPresence> presenceEvent:
-                    if (PresenceEventDelegate != null)
-                    {
-                        PresenceEventDelegate(presenceEvent);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Websocket: PresenceEventDelegate is null");
-                    }
-                    break;
-                case NotificationData<UserRoutingStatusUserRoutingStatus> routingStatusEvent:
-                    if (RoutingStatusEventDelegate != null)
-                    {
-                        RoutingStatusEventDelegate(routingStatusEvent);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Websocket: RoutingStatusEventDelegate is null");
-                    }
-                    break;
-                case NotificationData<ChannelMetadataNotification> metadataEvent:
-                    Debug.WriteLine("Websocket: Received metadata");
-                    break;
-                default:
-                    Debug.WriteLine($"Websocket: Notification event type not recognized: {notificationData}");
-                    break;
-            }
+                switch (notificationData)
+                {
+                    case NotificationData<ConversationEventTopicConversation> conversationEvent:
+                        if (ConversationEventDelegate != null)
+                        {
+                            ConversationEventDelegate(conversationEvent);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Websocket: ConversationEventDelegate is null");
+                        }
+                        break;
+                    case NotificationData<PresenceEventUserPresence> presenceEvent:
+                        if (PresenceEventDelegate != null)
+                        {
+                            PresenceEventDelegate(presenceEvent);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Websocket: PresenceEventDelegate is null");
+                        }
+                        break;
+                    case NotificationData<UserRoutingStatusUserRoutingStatus> routingStatusEvent:
+                        if (RoutingStatusEventDelegate != null)
+                        {
+                            RoutingStatusEventDelegate(routingStatusEvent);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Websocket: RoutingStatusEventDelegate is null");
+                        }
+                        break;
+                    case NotificationData<ChannelMetadataNotification> metadataEvent:
+                        Debug.WriteLine("Websocket: Received metadata");
+                        break;
+                    default:
+                        Debug.WriteLine($"Websocket: Notification event type not recognized: {notificationData}");
+                        break;
+                }
+            }));
         }
 
         private void Subscribe(string userId)

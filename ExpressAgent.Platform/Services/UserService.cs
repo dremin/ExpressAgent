@@ -1,4 +1,5 @@
-﻿using PureCloudPlatform.Client.V2.Api;
+﻿using ExpressAgent.Platform.Abstracts;
+using PureCloudPlatform.Client.V2.Api;
 using PureCloudPlatform.Client.V2.Client;
 using PureCloudPlatform.Client.V2.Model;
 using System.Collections.Generic;
@@ -6,14 +7,10 @@ using System.Diagnostics;
 
 namespace ExpressAgent.Platform.Services
 {
-    public class UserService
+    public class UserService : PlatformService<UsersApi>
     {
-        private UsersApi UsersApi = new UsersApi();
-        private Session Session;
-
-        public UserService(Session session)
+        public UserService(UsersApi apiInstance, Session session) : base(apiInstance, session)
         {
-            Session = session;
         }
 
         public UserMe GetCurrentUser()
@@ -22,7 +19,7 @@ namespace ExpressAgent.Platform.Services
             {
                 Debug.WriteLine($"Users: Calling GetUsersMe");
 
-                return UsersApi.GetUsersMe(new List<string> { "presence", "routingStatus", "station" });
+                return ApiInstance.GetUsersMe(new List<string> { "presence", "routingStatus", "station" });
             }
             catch (ApiException e)
             {

@@ -5,6 +5,7 @@
         Title="Genesys Cloud Login"
         Height="600"
         Width="800"
+        TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded"
         Closed="Window_Closed">
     <DockPanel>

@@ -6,9 +6,12 @@
         Title="ExpressAgent"
         Height="600"
         Width="800"
+        TextOptions.TextFormattingMode="Display"
         Closed="Window_Closed">
     <StackPanel Orientation="Vertical">
         <TextBlock Text="{Binding CurrentUser.Name}" />
         <TextBlock Text="{Binding Presence.CurrentPresence.Name}" />
+        <ListView ItemsSource="{Binding Conversations.ActiveConversations}"
+                  DisplayMemberPath="Id" />
     </StackPanel>
 </Window>
