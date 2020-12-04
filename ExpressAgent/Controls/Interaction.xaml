@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="ExpressAgent.Controls.Interaction"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="{Binding RemoteParticipant.Name}" />
+            <TextBlock Text="{Binding RemoteParticipant.Address}" />
+        </StackPanel>
+        <Button Name="MuteButton"
+                Click="MuteButton_Click">Mute</Button>
+        <Button Name="HoldButton"
+                Click="HoldButton_Click">Hold</Button>
+        <Button Name="DisconnectButton"
+                Click="DisconnectButton_Click">Disconnect</Button>
+    </StackPanel>
+</UserControl>

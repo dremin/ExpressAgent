@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using ExpressAgent.Platform.Services;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -46,6 +48,11 @@ namespace ExpressAgent.Platform.Models
         {
             get
             {
+                if (_Participants == null)
+                {
+                    _Participants = new ObservableCollection<ExpressConversationParticipant>();
+                }
+
                 return _Participants;
             }
             set
@@ -76,18 +83,30 @@ namespace ExpressAgent.Platform.Models
             }
         }
 
-        private string _AgentUserId;
+        private string _AgentUserId => _ConversationService.Session.CurrentUser.Id;
+        private ConversationService _ConversationService;
 
-        public ExpressConversation(string conversationId, string agentUserId)
+        public ExpressConversation(ConversationService conversationService, string conversationId)
         {
+            _ConversationService = conversationService;
             Id = conversationId;
-            _AgentUserId = agentUserId;
+        }
+
+        public void ToggleHold()
+        {
+            if (AgentParticipant == null)
+            {
+                Debug.WriteLine($"ExpressConversation: Unable to toggle hold state due to missing agent participant on {Id}");
+                return;
+            }
+
+            _ConversationService.UpdateParticipant(Id, AgentParticipant.Id, held: true);
         }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        internal virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -79,7 +79,7 @@ namespace ExpressAgent.Platform
 
             Presence.SetInitialPresence();
             Routing.SetQueueCollection();
-            Conversations.GetActiveConversations();
+            Conversations.SetActiveConversations();
         }
 
         private void Session_Unauthenticated(object sender, EventArgs e)

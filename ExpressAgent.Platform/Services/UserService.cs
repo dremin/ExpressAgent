@@ -17,7 +17,7 @@ namespace ExpressAgent.Platform.Services
         {
             try
             {
-                Debug.WriteLine($"Users: Calling GetUsersMe");
+                Debug.WriteLine($"UserService: Calling GetUsersMe");
 
                 return ApiInstance.GetUsersMe(new List<string> { "presence", "routingStatus", "station" });
             }

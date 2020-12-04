@@ -21,7 +21,7 @@ namespace ExpressAgent.Platform.Services
         {
             try
             {
-                Debug.WriteLine($"Presence: Calling GetRoutingQueues");
+                Debug.WriteLine($"RoutingService: Calling GetRoutingQueues");
 
                 QueueEntityListing result = ApiInstance.GetRoutingQueues(pageNumber);
                 List<Queue> queues = new List<Queue>();

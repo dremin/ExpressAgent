@@ -24,11 +24,21 @@ namespace ExpressAgent.Platform.Services
         {
             try
             {
-                Debug.WriteLine($"Conversations: Calling GetConversations");
+                Debug.WriteLine($"ConversationService: Calling GetConversations");
 
-                //ActiveConversations = new ObservableCollection<ExpressConversation>(ApiInstance.GetConversations().Entities);
+                ObservableCollection<ExpressConversation> conversations = new ObservableCollection<ExpressConversation>();
 
-                return ActiveConversations;
+                foreach (var conv in ApiInstance.GetConversations().Entities)
+                {
+                    ExpressConversation expConv = new ExpressConversation(this, conv.Id);
+
+                    if (UpdateExpressConversation(ref expConv, conv))
+                    {
+                        conversations.Add(expConv);
+                    }
+                }
+
+                return conversations;
             }
             catch (ApiException e)
             {
@@ -38,17 +48,85 @@ namespace ExpressAgent.Platform.Services
             return new ObservableCollection<ExpressConversation>();
         }
 
-        #region Conversion
-        public bool UpdateExpressConversation(ref ExpressConversation expConv, ConversationEventTopicConversation conv)
+        public void SetActiveConversations()
         {
+            ActiveConversations = GetActiveConversations();
+        }
+
+        public void UpdateCall(string conversationId, Conversation.RecordingStateEnum recordingState)
+        {
+            try
+            {
+                Conversation body = new Conversation()
+                {
+                    RecordingState = recordingState
+                };
+
+                Debug.WriteLine($"ConversationService: Calling PatchConversationsCall");
+
+                ApiInstance.PatchConversationsCall(conversationId, body);
+            }
+            catch (ApiException e)
+            {
+                Session.HandleException(e);
+            }
+        }
+
+        public void UpdateParticipant(string conversationId, string participantId, MediaParticipantRequest.StateEnum? state = null, bool? recording = null, bool? muted = null, bool? held = null, bool? wrapupSkipped = null, Wrapup wrapup = null)
+        {
+            try
+            {
+                MediaParticipantRequest body = new MediaParticipantRequest();
+
+                if (state != null)
+                {
+                    body.State = state;
+                }
+
+                if (recording != null)
+                {
+                    body.Recording = recording;
+                }
+
+                if (muted != null)
+                {
+                    body.Muted = muted;
+                }
+
+                if (held != null)
+                {
+                    body.Held = held;
+                }
+
+                if (wrapupSkipped != null)
+                {
+                    body.WrapupSkipped = wrapupSkipped;
+                }
+
+                if (wrapup != null)
+                {
+                    body.Wrapup = wrapup;
+                }
+
+                Debug.WriteLine($"ConversationService: Calling PatchConversationParticipant");
+
+                ApiInstance.PatchConversationParticipant(conversationId, participantId, body);
+            }
+            catch (ApiException e)
+            {
+                Session.HandleException(e);
+            }
+        }
+
+        #region Conversion
+        public bool UpdateExpressConversation(ref ExpressConversation expConv, dynamic conv)
+        {
+            // conv must be of type Conversation or ConversationEventTopicConversation
+            // the dynamic is less than ideal but Conversation and ConversationEventTopicConversation don't inherit from a common class
+
             bool isActiveConversation = false;
 
             expConv.Id = conv.Id;
-
-            if (expConv.Participants == null)
-            {
-                expConv.Participants = new ObservableCollection<ExpressConversationParticipant>();
-            }
 
             foreach (var participant in conv.Participants)
             {
@@ -71,44 +149,53 @@ namespace ExpressAgent.Platform.Services
                 expParty.UserId = participant.UserId;
                 expParty.Queue = Session.Routing.Queues.Where(q => q.Id == participant.QueueId).FirstOrDefault();
 
-                if (expParty.Calls == null)
+                if (participant.Calls != null)
                 {
-                    expParty.Calls = new ObservableCollection<ExpressConversationParticipantCall>();
-                }
-
-                foreach (var call in participant.Calls)
-                {
-                    bool isNewCall = false;
-                    ExpressConversationParticipantCall expCall = expParty.Calls.Where(c => c.Id == call.Id).FirstOrDefault();
-
-                    if (expCall == null)
+                    foreach (var call in participant.Calls)
                     {
-                        expCall = new ExpressConversationParticipantCall();
-                        isNewCall = true;
-                    }
+                        bool isNewCall = false;
+                        ExpressConversationParticipantCall expCall = (ExpressConversationParticipantCall)expParty.Communications.Where(c => c is ExpressConversationParticipantCall && c.Id == call.Id).FirstOrDefault();
 
-                    expCall.Id = call.Id;
-                    expCall.State = call.State.ToString().ToLower();
-                    expCall.Held = call.Held;
-                    expCall.Muted = call.Muted;
-                    expCall.ConnectedTime = call.ConnectedTime;
+                        if (expCall == null)
+                        {
+                            expCall = new ExpressConversationParticipantCall();
+                            isNewCall = true;
+                        }
 
-                    if (isNewCall)
-                    {
-                        expParty.Calls.Add(expCall);
-                    }
+                        expCall.Id = call.Id;
+                        expCall.State = call.State.ToString().ToLower();
+                        expCall.Held = call.Held;
+                        expCall.Muted = call.Muted;
+                        expCall.ConnectedTime = call.ConnectedTime;
 
-                    // conversation is active if the communication is not disconnected, or if awaiting wrapup
-                    if (expParty.UserId == Session.CurrentUser.Id
-                        && ((expCall.State != "disconnected" && expCall.State != "terminated") || (expParty.WrapupRequired == true && participant.Wrapup == null) ))
-                    {
-                        isActiveConversation = true;
+                        if (isNewCall)
+                        {
+                            expParty.Communications.Add(expCall);
+                        }
+
+                        // conversation is active if the communication is not disconnected, or if awaiting wrapup
+                        if (expParty.UserId == Session.CurrentUser.Id
+                            && ((expCall.State != "disconnected" && expCall.State != "terminated") || (expParty.WrapupRequired == true && participant.Wrapup == null)))
+                        {
+                            isActiveConversation = true;
+                        }
                     }
                 }
 
                 if (isNewParty)
                 {
                     expConv.Participants.Add(expParty);
+
+                    // send PropertyChanged notification if this participant became one of the convenience properties
+                    if (expConv.AgentParticipant?.Id == expParty.Id)
+                    {
+                        expConv.OnPropertyChanged("AgentParticipant");
+                    }
+
+                    if (expConv.RemoteParticipant?.Id == expParty.Id)
+                    {
+                        expConv.OnPropertyChanged("RemoteParticipant");
+                    }
                 }
             }
 
@@ -119,7 +206,7 @@ namespace ExpressAgent.Platform.Services
         #region Notification handlers
         public void HandleConversationEvent(NotificationData<ConversationEventTopicConversation> conversationEvent)
         {
-            Debug.WriteLine($"Websocket: Conversation event received for conversation {conversationEvent.EventBody.Id}");
+            Debug.WriteLine($"ConversationService: Conversation event received for conversation {conversationEvent.EventBody.Id}");
 
             bool isExisting = false;
             ExpressConversation expConv = ActiveConversations.Where(c => c.Id == conversationEvent.EventBody.Id).FirstOrDefault();
@@ -130,7 +217,7 @@ namespace ExpressAgent.Platform.Services
             }
             else
             {
-                expConv = new ExpressConversation(conversationEvent.EventBody.Id, Session.CurrentUser.Id);
+                expConv = new ExpressConversation(this, conversationEvent.EventBody.Id);
             }
 
             if (UpdateExpressConversation(ref expConv, conversationEvent.EventBody))

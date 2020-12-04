@@ -1,4 +1,5 @@
-﻿using PureCloudPlatform.Client.V2.Model;
+﻿using ExpressAgent.Platform.Abstracts;
+using PureCloudPlatform.Client.V2.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -161,7 +162,27 @@ namespace ExpressAgent.Platform.Models
             }
         }
 
-        public ObservableCollection<ExpressConversationParticipantCall> Calls = new ObservableCollection<ExpressConversationParticipantCall>();
+        private ObservableCollection<ExpressConversationParticipantCommunication> _Communications;
+        public ObservableCollection<ExpressConversationParticipantCommunication> Communications
+        {
+            get
+            {
+                if (_Communications == null)
+                {
+                    _Communications = new ObservableCollection<ExpressConversationParticipantCommunication>();
+                }
+
+                return _Communications;
+            }
+            set
+            {
+                if (value != _Communications)
+                {
+                    _Communications = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;

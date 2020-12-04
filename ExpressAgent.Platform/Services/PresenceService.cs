@@ -59,7 +59,7 @@ namespace ExpressAgent.Platform.Services
         {
             try
             {
-                Debug.WriteLine($"Presence: Calling GetPresencedefinitions");
+                Debug.WriteLine($"PresenceService: Calling GetPresencedefinitions");
 
                 OrganizationPresenceEntityListing result = ApiInstance.GetPresencedefinitions(pageNumber);
                 List<ExpressPresence> presences = new List<ExpressPresence>();
@@ -91,7 +91,7 @@ namespace ExpressAgent.Platform.Services
         {
             try
             {
-                Debug.WriteLine($"Presence: Calling GetUserPresencesPurecloud");
+                Debug.WriteLine($"PresenceService: Calling GetUserPresencesPurecloud");
 
                 UserPresence userPresence = ApiInstance.GetUserPresencesPurecloud(userId);
 
@@ -118,7 +118,7 @@ namespace ExpressAgent.Platform.Services
                     Message = message
                 };
 
-                Debug.WriteLine($"Presence: Calling PatchUserPresencesPurecloud");
+                Debug.WriteLine($"PresenceService: Calling PatchUserPresencesPurecloud");
 
                 UserPresence userPresence = ApiInstance.PatchUserPresencesPurecloud(userId, body);
 
@@ -189,7 +189,7 @@ namespace ExpressAgent.Platform.Services
                 // because the presence name doesn't come through in the notification, match up with our presence list using the ID
                 ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == presenceEvent.EventBody.PresenceDefinition.Id).FirstOrDefault();
 
-                Debug.WriteLine($"Presence: Presence event received: New presence is {orgPresence.Name} Message: {presenceEvent.EventBody.Message}");
+                Debug.WriteLine($"PresenceService: Presence event received: New presence is {orgPresence.Name} Message: {presenceEvent.EventBody.Message}");
 
                 if (orgPresence.Id == CurrentPresence.Id)
                 {
@@ -210,13 +210,13 @@ namespace ExpressAgent.Platform.Services
             }
             else
             {
-                Debug.WriteLine($"Presence: Ignoring presence update from unknown source {presenceEvent.EventBody.Source}");
+                Debug.WriteLine($"PresenceService: Ignoring presence update from unknown source {presenceEvent.EventBody.Source}");
             }
         }
 
         public void HandleRoutingStatusEvent(NotificationData<UserRoutingStatusUserRoutingStatus> routingStatusEvent)
         {
-            Debug.WriteLine($"Websocket: Routing status event received: New routing status is {routingStatusEvent.EventBody.RoutingStatus.Status}");
+            Debug.WriteLine($"PresenceService: Routing status event received: New routing status is {routingStatusEvent.EventBody.RoutingStatus.Status}");
 
         }
         #endregion
