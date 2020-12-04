@@ -23,7 +23,7 @@ namespace ExpressAgent.Controls
 
         private void PresenceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Session?.Presence.SetUserPresence(Session.CurrentUser.Id, (sender as ComboBox).SelectedValue as string);
+            Session?.Presence.SetUserPresence((sender as ComboBox).SelectedValue as string, Session?.Presence.CurrentPresence.Message);
         }
     }
 }

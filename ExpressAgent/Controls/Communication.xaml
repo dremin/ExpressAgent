@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="ExpressAgent.Controls.Communication"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:ExpressAgent.Converters">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:CommunicationStateVisibilityConverter x:Key="stateConverter" />
+            <s:String x:Key="alertingState">alerting</s:String>
+            <s:String x:Key="connectedState">connected</s:String>
+            <s:String x:Key="contactingState">contacting</s:String>
+            <s:String x:Key="dialingState">dialing</s:String>
+            <s:String x:Key="disconnectedState">disconnected</s:String>
+            <s:String x:Key="offeringState">offering</s:String>
+            <s:String x:Key="terminatedState">terminated</s:String>
+            <s:Boolean x:Key="trueBool">True</s:Boolean>
+
+            <Style TargetType="Button">
+                <Setter Property="Margin"
+                        Value="2,0" />
+                <Setter Property="MinHeight"
+                        Value="21" />
+                <Setter Property="MinWidth"
+                        Value="73" />
+                <Setter Property="Padding"
+                        Value="7,0" />
+            </Style>
+            <Style TargetType="ToggleButton">
+                <Setter Property="Margin"
+                        Value="2,0" />
+                <Setter Property="MinHeight"
+                        Value="21" />
+                <Setter Property="MinWidth"
+                        Value="73" />
+                <Setter Property="Padding"
+                        Value="7,0" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Orientation="Horizontal">
+        <!-- Alerting state -->
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Visibility>
+                <MultiBinding Converter="{StaticResource stateConverter}"
+                              NotifyOnSourceUpdated="True">
+                    <Binding Path="State"
+                             UpdateSourceTrigger="PropertyChanged" />
+                    <Binding Source="{StaticResource alertingState}" />
+                </MultiBinding>
+            </StackPanel.Visibility>
+            <Button Name="AcceptButton"
+                Click="AcceptButton_Click">Accept</Button>
+            <Button Name="DeclineButton"
+                Click="DeclineButton_Click">Decline</Button>
+        </StackPanel>
+        <!-- Connected state -->
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Visibility>
+                <MultiBinding Converter="{StaticResource stateConverter}"
+                              NotifyOnSourceUpdated="True">
+                    <Binding Path="State"
+                             UpdateSourceTrigger="PropertyChanged" />
+                    <Binding Source="{StaticResource connectedState}" />
+                </MultiBinding>
+            </StackPanel.Visibility>
+            <ToggleButton Name="MuteButton"
+                      IsChecked="{Binding Muted, Mode=OneWay}"
+                      Click="MuteButton_Click">Mute</ToggleButton>
+            <ToggleButton Name="HoldButton"
+                      IsChecked="{Binding Held, Mode=OneWay}"
+                      Click="HoldButton_Click">Hold</ToggleButton>
+        </StackPanel>
+        <!-- Disconnect is available in multiple states -->
+        <Button Name="DisconnectButton"
+                Click="DisconnectButton_Click">
+            <Button.Visibility>
+                <MultiBinding Converter="{StaticResource stateConverter}"
+                              NotifyOnSourceUpdated="True">
+                    <Binding Path="State"
+                             UpdateSourceTrigger="PropertyChanged" />
+                    <Binding Source="{StaticResource connectedState}" />
+                    <Binding Source="{StaticResource contactingState}" />
+                    <Binding Source="{StaticResource dialingState}" />
+                    <Binding Source="{StaticResource offeringState}" />
+                </MultiBinding>
+            </Button.Visibility>
+            Disconnect
+        </Button>
+        <!-- Wrapup is required if communication still exists in disconnected or terminated state -->
+        <TextBlock Text="Awaiting wrap-up...">
+            <TextBlock.Visibility>
+                <MultiBinding Converter="{StaticResource stateConverter}"
+                              NotifyOnSourceUpdated="True">
+                    <Binding Path="State"
+                             UpdateSourceTrigger="PropertyChanged" />
+                    <Binding Source="{StaticResource disconnectedState}" />
+                    <Binding Source="{StaticResource terminatedState}" />
+                </MultiBinding>
+            </TextBlock.Visibility>
+        </TextBlock>
+    </StackPanel>
+</UserControl>

@@ -85,22 +85,18 @@ namespace ExpressAgent.Platform.Models
 
         private string _AgentUserId => _ConversationService.Session.CurrentUser.Id;
         private ConversationService _ConversationService;
+        public ConversationService ConversationService
+        {
+            get
+            {
+                return _ConversationService;
+            }
+        }
 
         public ExpressConversation(ConversationService conversationService, string conversationId)
         {
             _ConversationService = conversationService;
             Id = conversationId;
-        }
-
-        public void ToggleHold()
-        {
-            if (AgentParticipant == null)
-            {
-                Debug.WriteLine($"ExpressConversation: Unable to toggle hold state due to missing agent participant on {Id}");
-                return;
-            }
-
-            _ConversationService.UpdateParticipant(Id, AgentParticipant.Id, held: true);
         }
 
         #region INotifyPropertyChanged

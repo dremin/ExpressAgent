@@ -105,8 +105,13 @@ namespace ExpressAgent.Platform.Services
             return new ExpressPresence();
         }
 
-        public bool SetUserPresence(string userId, string presenceId, string message = null)
+        public bool SetUserPresence(string presenceId, string message = null)
         {
+            if (CurrentPresence.Id == presenceId && (message ?? "") == (CurrentPresence.Message ?? ""))
+            {
+                return false;
+            }
+
             try
             {
                 UserPresence body = new UserPresence
@@ -120,7 +125,7 @@ namespace ExpressAgent.Platform.Services
 
                 Debug.WriteLine($"PresenceService: Calling PatchUserPresencesPurecloud");
 
-                UserPresence userPresence = ApiInstance.PatchUserPresencesPurecloud(userId, body);
+                UserPresence userPresence = ApiInstance.PatchUserPresencesPurecloud(Session.CurrentUser.Id, body);
 
                 return userPresence.PresenceDefinition.Id == presenceId;
             }
@@ -135,7 +140,16 @@ namespace ExpressAgent.Platform.Services
         public bool SetInitialPresence()
         {
             ExpressPresence availablePresence = OrgPresences.Where(p => p.SystemPresence == "Available" && p.Primary == true).FirstOrDefault();
-            return SetUserPresence(Session.CurrentUser.Id, availablePresence.Id);
+            ExpressPresence offlinePresence = OrgPresences.Where(p => p.SystemPresence == "Offline" && p.Primary == true).FirstOrDefault();
+
+            if (CurrentPresence.Id == offlinePresence.Id)
+            {
+                return SetUserPresence(availablePresence.Id);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         #region Conversion

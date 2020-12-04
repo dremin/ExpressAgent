@@ -72,42 +72,10 @@ namespace ExpressAgent.Platform.Services
             }
         }
 
-        public void UpdateParticipant(string conversationId, string participantId, MediaParticipantRequest.StateEnum? state = null, bool? recording = null, bool? muted = null, bool? held = null, bool? wrapupSkipped = null, Wrapup wrapup = null)
+        public void UpdateParticipant(string conversationId, string participantId, MediaParticipantRequest body)
         {
             try
             {
-                MediaParticipantRequest body = new MediaParticipantRequest();
-
-                if (state != null)
-                {
-                    body.State = state;
-                }
-
-                if (recording != null)
-                {
-                    body.Recording = recording;
-                }
-
-                if (muted != null)
-                {
-                    body.Muted = muted;
-                }
-
-                if (held != null)
-                {
-                    body.Held = held;
-                }
-
-                if (wrapupSkipped != null)
-                {
-                    body.WrapupSkipped = wrapupSkipped;
-                }
-
-                if (wrapup != null)
-                {
-                    body.Wrapup = wrapup;
-                }
-
                 Debug.WriteLine($"ConversationService: Calling PatchConversationParticipant");
 
                 ApiInstance.PatchConversationParticipant(conversationId, participantId, body);
@@ -135,7 +103,7 @@ namespace ExpressAgent.Platform.Services
 
                 if (expParty == null)
                 {
-                    expParty = new ExpressConversationParticipant();
+                    expParty = new ExpressConversationParticipant(expConv);
                     isNewParty = true;
                 }
 
@@ -158,7 +126,7 @@ namespace ExpressAgent.Platform.Services
 
                         if (expCall == null)
                         {
-                            expCall = new ExpressConversationParticipantCall();
+                            expCall = new ExpressConversationParticipantCall(expParty);
                             isNewCall = true;
                         }
 
@@ -173,7 +141,7 @@ namespace ExpressAgent.Platform.Services
                             expParty.Communications.Add(expCall);
                         }
 
-                        // conversation is active if the communication is not disconnected, or if awaiting wrapup
+                        // conversation is active if the communication is not disconnected/terminated, or if awaiting wrapup
                         if (expParty.UserId == Session.CurrentUser.Id
                             && ((expCall.State != "disconnected" && expCall.State != "terminated") || (expParty.WrapupRequired == true && participant.Wrapup == null)))
                         {

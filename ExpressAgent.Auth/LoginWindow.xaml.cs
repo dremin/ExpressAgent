@@ -48,10 +48,16 @@ namespace ExpressAgent.Auth
 
             AuthBrowser.Authenticated += AuthBrowser_Authenticated;
             AuthBrowser.ExceptionEncountered += AuthBrowser_ExceptionEncountered;
+            AuthBrowser.Navigated += AuthBrowser_Navigated;
 
             Panel panel = new Panel { Dock = DockStyle.Fill };
             panel.Controls.Add(AuthBrowser);
             BrowserHost.Child = panel;
+        }
+
+        private void AuthBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            BrowserHost.Visibility = Visibility.Visible;
         }
 
         private void AuthBrowser_ExceptionEncountered(string source, Exception ex)

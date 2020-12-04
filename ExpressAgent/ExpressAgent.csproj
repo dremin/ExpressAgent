@@ -4,10 +4,19 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\Genesys.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Genesys.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ExpressAgent.Platform\ExpressAgent.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Genesys.ico" />
   </ItemGroup>
 
 </Project>

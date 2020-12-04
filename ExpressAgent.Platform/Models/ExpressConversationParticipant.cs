@@ -184,6 +184,20 @@ namespace ExpressAgent.Platform.Models
             }
         }
 
+        private ExpressConversation _Conversation;
+        public ExpressConversation Conversation
+        {
+            get
+            {
+                return _Conversation;
+            }
+        }
+
+        public ExpressConversationParticipant(ExpressConversation conversation)
+        {
+            _Conversation = conversation;
+        }
+
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 

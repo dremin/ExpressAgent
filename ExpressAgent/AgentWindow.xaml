@@ -1,14 +1,14 @@
 ﻿<Window x:Class="ExpressAgent.AgentWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:ExpressAgent"
         xmlns:controls="clr-namespace:ExpressAgent.Controls"
         WindowStartupLocation="CenterScreen"
-        Title="ExpressAgent"
+        Title="Genesys Cloud Express Agent"
         SizeToContent="Height"
         ResizeMode="CanMinimize"
         Height="Auto"
-        Width="600"
+        Width="500"
+        Topmost="True"
         TextOptions.TextFormattingMode="Display"
         Closed="Window_Closed">
     <StackPanel Orientation="Vertical">

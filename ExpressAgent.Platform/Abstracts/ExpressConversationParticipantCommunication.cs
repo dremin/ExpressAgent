@@ -1,5 +1,8 @@
-﻿using System;
+﻿using ExpressAgent.Platform.Models;
+using PureCloudPlatform.Client.V2.Model;
+using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace ExpressAgent.Platform.Abstracts
@@ -72,6 +75,68 @@ namespace ExpressAgent.Platform.Abstracts
                     OnPropertyChanged();
                 }
             }
+        }
+
+        private ExpressConversationParticipant _Participant;
+        public ExpressConversationParticipant Participant
+        {
+            get
+            {
+                return _Participant;
+            }
+        }
+
+        public ExpressConversationParticipantCommunication(ExpressConversationParticipant participant)
+        {
+            _Participant = participant;
+        }
+
+        public void ToggleHold()
+        {
+            if (Participant == null)
+            {
+                Debug.WriteLine($"ExpressConversationParticipantCommunication: Unable to toggle hold state due to missing participant on {Id}");
+                return;
+            }
+
+            MediaParticipantRequest body = new MediaParticipantRequest()
+            {
+                Held = !Held ?? true
+            };
+
+            Participant.Conversation.ConversationService.UpdateParticipant(Participant.Conversation.Id, Participant.Id, body);
+        }
+
+        public void Pickup()
+        {
+            if (Participant == null)
+            {
+                Debug.WriteLine($"ExpressConversationParticipantCommunication: Unable to pickup due to missing participant on {Id}");
+                return;
+            }
+
+            MediaParticipantRequest body = new MediaParticipantRequest()
+            {
+                State = MediaParticipantRequest.StateEnum.Connected
+            };
+
+            Participant.Conversation.ConversationService.UpdateParticipant(Participant.Conversation.Id, Participant.Id, body);
+        }
+
+        public void Disconnect()
+        {
+            if (Participant == null)
+            {
+                Debug.WriteLine($"ExpressConversationParticipantCommunication: Unable to disconnect due to missing participant on {Id}");
+                return;
+            }
+
+            MediaParticipantRequest body = new MediaParticipantRequest()
+            {
+                State = MediaParticipantRequest.StateEnum.Disconnected
+            };
+
+            Participant.Conversation.ConversationService.UpdateParticipant(Participant.Conversation.Id, Participant.Id, body);
         }
 
         #region INotifyPropertyChanged

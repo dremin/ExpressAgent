@@ -8,7 +8,11 @@
         TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded"
         Closed="Window_Closed">
-    <DockPanel>
-        <WindowsFormsHost x:Name="BrowserHost" />
-    </DockPanel>
+    <Grid>
+        <WindowsFormsHost x:Name="BrowserHost" Visibility="Hidden" />
+        <TextBlock Text="Connecting to Genesys Cloud..."
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center" />
+    </Grid>
 </Window>
