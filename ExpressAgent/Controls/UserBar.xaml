@@ -1,9 +1,13 @@
 ﻿<UserControl x:Class="ExpressAgent.Controls.UserBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase">
+             xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:controls="clr-namespace:ExpressAgent.Controls"
+             xmlns:converters="clr-namespace:ExpressAgent.Converters"
+             x:Name="UserBarControl">
     <UserControl.Resources>
         <ResourceDictionary>
+            <converters:BooleanVisibilityConverter x:Key="boolConverter" />
             <CollectionViewSource x:Key="PresenceCollectionViewSource"
                                   Source="{Binding Presence.OrgPresences}">
                 <CollectionViewSource.SortDescriptions>
@@ -11,35 +15,65 @@
                                                     Direction="Ascending" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
+            
+            <Style TargetType="ToggleButton">
+                <Setter Property="Margin"
+                        Value="2,0" />
+                <Setter Property="MinHeight"
+                        Value="21" />
+                <Setter Property="MinWidth"
+                        Value="73" />
+                <Setter Property="Padding"
+                        Value="7,0" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel Margin="7">
-        <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Left">
-            <Ellipse Width="24"
-                     Height="24">
-                <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding CurrentUser.Images[0].ImageUri}" />
-                </Ellipse.Fill>
-            </Ellipse>
-            <TextBlock Text="{Binding CurrentUser.Name}"
-                       FontSize="15"
-                       VerticalAlignment="Center"
-                       Margin="5,0"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Right">
-            <TextBlock Text="My Status: "
-                       VerticalAlignment="Center"/>
-            <ComboBox ItemsSource="{Binding Source={StaticResource PresenceCollectionViewSource}}"
-                      SelectedValue="{Binding Presence.CurrentPresence.Id, Mode=OneWay}"
-                      SelectedValuePath="Id"
-                      DisplayMemberPath="Name"
-                      SelectionChanged="PresenceComboBox_SelectionChanged"
-                      Width="120"/>
-        </StackPanel>
-        <StackPanel></StackPanel>
-    </DockPanel>
+    <StackPanel Orientation="Vertical">
+        <DockPanel Margin="7">
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left">
+                <Ellipse Width="24"
+                         Height="24">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding CurrentUser.Images[0].ImageUri}" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding CurrentUser.Name}"
+                           FontSize="15"
+                           VerticalAlignment="Center"
+                           Margin="5,0"
+                           TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right">
+                <Border BorderThickness="0,0,1,0"
+                        BorderBrush="Gray"
+                        Padding="0,0,10,0"
+                        Margin="0,0,10,0">
+                    <ToggleButton x:Name="NewCallButton">New Call</ToggleButton>
+                </Border>
+                <TextBlock Text="My Status: "
+                           VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Source={StaticResource PresenceCollectionViewSource}}"
+                          SelectedValue="{Binding Presence.CurrentPresence.Id, Mode=OneWay}"
+                          SelectedValuePath="Id"
+                          DisplayMemberPath="Name"
+                          SelectionChanged="PresenceComboBox_SelectionChanged"
+                          Width="120"/>
+            </StackPanel>
+            <StackPanel></StackPanel>
+        </DockPanel>
+        <controls:NewCall ParentUserBar="{Binding ElementName=UserBarControl}">
+            <controls:NewCall.Visibility>
+                <MultiBinding Converter="{StaticResource boolConverter}"
+                              NotifyOnSourceUpdated="True">
+                    <Binding ElementName="NewCallButton"
+                             Path="IsChecked"
+                             UpdateSourceTrigger="PropertyChanged" />
+                </MultiBinding>
+            </controls:NewCall.Visibility>
+        </controls:NewCall>
+    </StackPanel>
 </UserControl>

@@ -1,10 +1,10 @@
 ﻿using ExpressAgent.Platform.Abstracts;
+using ExpressAgent.Platform.Enums;
 using ExpressAgent.Platform.Models;
 using PureCloudPlatform.Client.V2.Api;
 using PureCloudPlatform.Client.V2.Client;
 using PureCloudPlatform.Client.V2.Extensions.Notifications;
 using PureCloudPlatform.Client.V2.Model;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -79,6 +79,38 @@ namespace ExpressAgent.Platform.Services
                 Debug.WriteLine($"ConversationService: Calling PatchConversationParticipant");
 
                 ApiInstance.PatchConversationParticipant(conversationId, participantId, body);
+            }
+            catch (ApiException e)
+            {
+                Session.HandleException(e);
+            }
+        }
+
+        public void CreateCall(ConversationTarget targetType, string target, string queueId)
+        {
+            try
+            { 
+                CreateCallRequest request = new CreateCallRequest();
+
+                switch (targetType)
+                {
+                    case ConversationTarget.PhoneNumber:
+                        request.PhoneNumber = target;
+                        break;
+                    case ConversationTarget.Queue:
+                        request.CallQueueId = target;
+                        break;
+                    case ConversationTarget.User:
+                        request.CallUserId = target;
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(queueId))
+                {
+                    request.CallFromQueueId = queueId;
+                }
+
+                ApiInstance.PostConversationsCalls(request);
             }
             catch (ApiException e)
             {
