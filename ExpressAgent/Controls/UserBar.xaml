@@ -32,7 +32,9 @@
         <DockPanel Margin="7">
             <StackPanel Orientation="Horizontal"
                         VerticalAlignment="Center"
-                        DockPanel.Dock="Left">
+                        DockPanel.Dock="Left"
+                        Name="UserStackPanel"
+                        MouseLeftButtonUp="UserStackPanel_MouseLeftButtonUp">
                 <Ellipse Width="24"
                          Height="24">
                     <Ellipse.Fill>
@@ -44,6 +46,13 @@
                            VerticalAlignment="Center"
                            Margin="5,0"
                            TextTrimming="CharacterEllipsis" />
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Name="LogoutMenuItem"
+                                  Header="Log Out"
+                                  Click="LogoutMenuItem_Click" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
             </StackPanel>
             <StackPanel Orientation="Horizontal"
                         VerticalAlignment="Center"

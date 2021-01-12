@@ -44,17 +44,20 @@ namespace ExpressAgent.Auth
 
         public void Authenticate()
         {
-            AuthToken = "";
-
-            LoginWindow window = new LoginWindow(this);
-            window.Show();
+            ShowLoginWindow(false);
         }
 
         public void Logout()
         {
-            // TODO
-            MessageBox.Show("Log out");
-            Application.Current.Shutdown();
+            ShowLoginWindow(true);
+        }
+
+        private void ShowLoginWindow(bool logout)
+        {
+            AuthToken = "";
+
+            LoginWindow window = new LoginWindow(this, logout);
+            window.Show();
         }
 
         #region INotifyPropertyChanged

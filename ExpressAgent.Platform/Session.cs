@@ -38,6 +38,8 @@ namespace ExpressAgent.Platform
             }
         }
 
+        private bool LoggingOut;
+
         public Session()
         {
             Configuration.Default.ApiClient.setBasePath(PureCloudRegionHosts.us_east_1);
@@ -86,13 +88,14 @@ namespace ExpressAgent.Platform
         {
             NotificationsWebsocket?.Dispose();
 
-            AuthSession.Current.Authenticate();
+            if (!LoggingOut) AuthSession.Current.Authenticate();
         }
 
         private void AuthSession_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "AuthToken" && AuthSession.Current.HasToken)
             {
+                LoggingOut = false;
                 Configuration.Default.AccessToken = (sender as AuthSession).AuthToken;
 
                 CurrentUser = Users.GetCurrentUser();
@@ -105,6 +108,13 @@ namespace ExpressAgent.Platform
 
         public EventHandler Authenticated;
         public EventHandler Unauthenticated;
+
+        public void Logout()
+        {
+            LoggingOut = true;
+            AuthSession.Current.Logout();
+            Unauthenticated?.Invoke(this, new EventArgs());
+        }
 
         public void Dispose()
         {

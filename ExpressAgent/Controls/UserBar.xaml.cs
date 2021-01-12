@@ -25,5 +25,15 @@ namespace ExpressAgent.Controls
         {
             Session?.Presence.SetUserPresence((sender as ComboBox).SelectedValue as string, Session?.Presence.CurrentPresence.Message);
         }
+
+        private void LogoutMenuItem_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Session?.Logout();
+        }
+
+        private void UserStackPanel_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            UserStackPanel.ContextMenu.IsOpen = true;
+        }
     }
 }
