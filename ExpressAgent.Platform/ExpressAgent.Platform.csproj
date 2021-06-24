@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PureCloudPlatform.Client.V2" Version="106.0.0" />
+    <PackageReference Include="PureCloudPlatform.Client.V2" Version="122.0.2" />
   </ItemGroup>
 
   <ItemGroup>
