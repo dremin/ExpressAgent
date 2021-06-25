@@ -1,6 +1,7 @@
 ﻿using ExpressAgent.Platform.Abstracts;
 using PureCloudPlatform.Client.V2.Model;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -196,6 +197,21 @@ namespace ExpressAgent.Platform.Models
         public ExpressConversationParticipant(ExpressConversation conversation)
         {
             _Conversation = conversation;
+        }
+
+        public List<WrapupCode> GetWrapUpCodes()
+        {
+            return _Conversation.ConversationService.GetConversationParticipantWrapupCodes(_Conversation.Id, Id);
+        }
+
+        public void SetWrapUp(string code)
+        {
+            MediaParticipantRequest body = new MediaParticipantRequest()
+            {
+                Wrapup = new Wrapup(code)
+            };
+
+            _Conversation.ConversationService.UpdateParticipant(_Conversation.Id, Id, body);
         }
 
         #region INotifyPropertyChanged

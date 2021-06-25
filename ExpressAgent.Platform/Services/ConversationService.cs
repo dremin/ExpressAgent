@@ -5,6 +5,7 @@ using PureCloudPlatform.Client.V2.Api;
 using PureCloudPlatform.Client.V2.Client;
 using PureCloudPlatform.Client.V2.Extensions.Notifications;
 using PureCloudPlatform.Client.V2.Model;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -118,6 +119,24 @@ namespace ExpressAgent.Platform.Services
             }
         }
 
+        public List<WrapupCode> GetConversationParticipantWrapupCodes(string conversationId, string participantId)
+        {
+            try
+            {
+                Debug.WriteLine($"ConversationService: Calling GetConversationParticipantWrapupcodes");
+
+                List<WrapupCode> codes = ApiInstance.GetConversationParticipantWrapupcodes(conversationId, participantId);
+
+                return codes;
+            }
+            catch (ApiException e)
+            {
+                Session.HandleException(e);
+
+                return new List<WrapupCode>();
+            }
+        }
+
         #region Conversion
         public bool UpdateExpressConversation(ref ExpressConversation expConv, dynamic conv)
         {
@@ -175,7 +194,7 @@ namespace ExpressAgent.Platform.Services
 
                         // conversation is active if the communication is not disconnected/terminated, or if awaiting wrapup
                         if (expParty.UserId == Session.CurrentUser.Id
-                            && ((expCall.State != "disconnected" && expCall.State != "terminated") || (expParty.WrapupRequired == true && participant.Wrapup == null)))
+                            && ((expCall.State != "disconnected" && expCall.State != "terminated") || (expParty.WrapupRequired == true && (participant.Wrapup == null || string.IsNullOrEmpty(participant.Wrapup.Code)))))
                         {
                             isActiveConversation = true;
                         }

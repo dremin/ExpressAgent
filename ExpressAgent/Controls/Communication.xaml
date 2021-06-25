@@ -87,8 +87,9 @@
             Disconnect
         </Button>
         <!-- Wrapup is required if communication still exists in disconnected or terminated state -->
-        <TextBlock Text="Awaiting wrap-up...">
-            <TextBlock.Visibility>
+        <StackPanel Orientation="Horizontal"
+                    IsVisibleChanged="StackPanel_IsVisibleChanged">
+            <StackPanel.Visibility>
                 <MultiBinding Converter="{StaticResource stateConverter}"
                               NotifyOnSourceUpdated="True">
                     <Binding Path="State"
@@ -96,7 +97,17 @@
                     <Binding Source="{StaticResource disconnectedState}" />
                     <Binding Source="{StaticResource terminatedState}" />
                 </MultiBinding>
-            </TextBlock.Visibility>
-        </TextBlock>
+            </StackPanel.Visibility>
+            <TextBlock Text="Wrap-up code: "
+                           VerticalAlignment="Center"/>
+            <ComboBox Name="WrapUpComboBox"
+                      Width="150"
+                      SelectionChanged="WrapUpComboBox_SelectionChanged" />
+            <Button Name="WrapUpButton"
+                    Click="WrapUpButton_Click"
+                    IsEnabled="False">
+                Done
+            </Button>
+        </StackPanel>
     </StackPanel>
 </UserControl>

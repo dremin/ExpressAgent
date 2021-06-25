@@ -55,5 +55,27 @@ namespace ExpressAgent.Controls
         {
             _Communication.Disconnect();
         }
+
+        private void StackPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            WrapUpComboBox.ItemsSource = _Communication.Participant.GetWrapUpCodes();
+            WrapUpComboBox.DisplayMemberPath = "Name";
+            WrapUpComboBox.SelectedValuePath = "Id";
+
+            if (WrapUpComboBox.Items.Count > 0)
+            {
+                WrapUpComboBox.SelectedIndex = 0;
+            }
+        }
+
+        private void WrapUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            _Communication.Participant.SetWrapUp((string)WrapUpComboBox.SelectedValue);
+        }
+
+        private void WrapUpComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            WrapUpButton.IsEnabled = true;
+        }
     }
 }
