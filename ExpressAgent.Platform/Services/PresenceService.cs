@@ -41,7 +41,7 @@ namespace ExpressAgent.Platform.Services
 
                 return _CurrentPresence;
             }
-            set
+            private set
             {
                 if (value != _CurrentPresence)
                 {
@@ -198,40 +198,33 @@ namespace ExpressAgent.Platform.Services
         #region Notification handlers
         public void HandlePresenceEvent(NotificationData<PresenceEventUserPresence> presenceEvent)
         {
-            if (presenceEvent.EventBody.Source == "PURECLOUD")
+            if (presenceEvent.EventBody.Source != "PURECLOUD")
             {
-                // because the presence name doesn't come through in the notification, match up with our presence list using the ID
-                ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == presenceEvent.EventBody.PresenceDefinition.Id).FirstOrDefault();
+                Debug.WriteLine($"PresenceService: Ignoring presence update from unknown source {presenceEvent.EventBody.Source}");
+                return;
+            }
 
-                Debug.WriteLine($"PresenceService: Presence event received: New presence is {orgPresence.Name} Message: {presenceEvent.EventBody.Message}");
+            // because the presence name doesn't come through in the notification, match up with our presence list using the ID
+            ExpressPresence orgPresence = OrgPresences.Where(p => p.Id == presenceEvent.EventBody.PresenceDefinition.Id).FirstOrDefault();
 
-                if (orgPresence.Id == CurrentPresence.Id)
-                {
-                    // same presence, just a new message
-                    CurrentPresence.Message = presenceEvent.EventBody.Message;
-                }
-                else
-                {
-                    CurrentPresence = new ExpressPresence
-                    {
-                        Id = orgPresence.Id,
-                        Name = orgPresence.Name,
-                        Message = presenceEvent.EventBody.Message,
-                        SystemPresence = orgPresence.SystemPresence,
-                        Primary = orgPresence.Primary
-                    };
-                }
+            Debug.WriteLine($"PresenceService: Presence event received: New presence is {orgPresence.Name} Message: {presenceEvent.EventBody.Message}");
+
+            if (orgPresence.Id == CurrentPresence.Id)
+            {
+                // same presence, just a new message
+                CurrentPresence.Message = presenceEvent.EventBody.Message;
             }
             else
             {
-                Debug.WriteLine($"PresenceService: Ignoring presence update from unknown source {presenceEvent.EventBody.Source}");
+                CurrentPresence = new ExpressPresence
+                {
+                    Id = orgPresence.Id,
+                    Name = orgPresence.Name,
+                    Message = presenceEvent.EventBody.Message,
+                    SystemPresence = orgPresence.SystemPresence,
+                    Primary = orgPresence.Primary
+                };
             }
-        }
-
-        public void HandleRoutingStatusEvent(NotificationData<UserRoutingStatusUserRoutingStatus> routingStatusEvent)
-        {
-            Debug.WriteLine($"PresenceService: Routing status event received: New routing status is {routingStatusEvent.EventBody.RoutingStatus.Status}");
-
         }
         #endregion
 
