@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Forms;
-using ININ.PureCloud.OAuthControl;
 
 namespace ExpressAgent.Auth
 {
@@ -12,7 +10,6 @@ namespace ExpressAgent.Auth
     public partial class LoginWindow : Window
     {
         private bool QuitOnClose = true;
-        private OAuthWebBrowser AuthBrowser;
         private AuthSession Session;
         private string ClientId = "6a53129d-0f25-479f-89d7-63d91faa24b0";
         private string Environment = "mypurecloud.com";
@@ -42,7 +39,7 @@ namespace ExpressAgent.Auth
             Debug.WriteLine("LoginWindow: Logging out...");
 
             IsAuthenticating = false;
-            AuthBrowser.Navigate($"https://login.{Environment}/logout?client_id={ClientId}&redirect_uri={RedirectUri}");
+            AuthBrowser.Source = new Uri($"https://login.{Environment}/logout?client_id={ClientId}&redirect_uri={RedirectUri}");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -59,9 +56,8 @@ namespace ExpressAgent.Auth
 
         private void SetupBrowser()
         {
-            AuthBrowser = new OAuthWebBrowser
+            AuthBrowser.Config = new GenesysCloudOAuthWebView.Core.OAuthConfig
             {
-                Dock = DockStyle.Fill,
                 RedirectUri = RedirectUri,
                 RedirectUriIsFake = true,
                 ClientId = ClientId,
@@ -70,29 +66,12 @@ namespace ExpressAgent.Auth
 
             AuthBrowser.Authenticated += AuthBrowser_Authenticated;
             AuthBrowser.ExceptionEncountered += AuthBrowser_ExceptionEncountered;
-            AuthBrowser.Navigated += AuthBrowser_Navigated;
-            AuthBrowser.Navigating += AuthBrowser_Navigating;
-
-            Panel panel = new Panel { Dock = DockStyle.Fill };
-            panel.Controls.Add(AuthBrowser);
-            BrowserHost.Child = panel;
+            AuthBrowser.NavigationCompleted += AuthBrowser_NavigationCompleted;
         }
 
-        private void AuthBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        private void AuthBrowser_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (e.Url.ToString().Contains(RedirectUri))
-            {
-                BrowserHost.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                BrowserHost.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void AuthBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
-        {
-            if (e.Url.ToString().Contains(RedirectUri) && !IsAuthenticating)
+            if (!IsAuthenticating)
             {
                 Login();
             }
@@ -100,16 +79,16 @@ namespace ExpressAgent.Auth
 
         private void AuthBrowser_ExceptionEncountered(string source, Exception ex)
         {
-            System.Windows.MessageBox.Show("There was a problem signing in to Genesys Cloud. Please try again.");
+            MessageBox.Show("There was a problem signing in to Genesys Cloud. Please try again.");
             Login();
         }
 
-        private void AuthBrowser_Authenticated(string accessToken)
+        private void AuthBrowser_Authenticated(GenesysCloudOAuthWebView.Core.OAuthResponse response)
         {
-            if (!string.IsNullOrEmpty(accessToken))
+            if (!string.IsNullOrEmpty(response.AccessToken))
             {
                 Debug.WriteLine("LoginWindow: Successfully obtained access token");
-                Session.AuthToken = accessToken;
+                Session.AuthToken = response.AccessToken;
                 QuitOnClose = false;
                 Close();
             }
@@ -119,7 +98,7 @@ namespace ExpressAgent.Auth
         {
             if (QuitOnClose)
             {
-                System.Windows.Application.Current.Shutdown();
+                Application.Current.Shutdown();
             }
         }
     }

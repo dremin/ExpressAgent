@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PureCloudOAuthControl" Version="2.1.0" />
+	<PackageReference Include="GenesysCloudOAuthWebView" Version="1.0.*-*" />
   </ItemGroup>
 
 </Project>

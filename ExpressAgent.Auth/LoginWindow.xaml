@@ -1,6 +1,7 @@
 ﻿<Window x:Class="ExpressAgent.Auth.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:GenesysCloudOAuthWebView.Wpf;assembly=GenesysCloudOAuthWebView.Wpf"
         WindowStartupLocation="CenterScreen"
         Title="Genesys Cloud Login"
         Height="600"
@@ -9,7 +10,7 @@
         Loaded="Window_Loaded"
         Closed="Window_Closed">
     <Grid>
-        <WindowsFormsHost x:Name="BrowserHost" Visibility="Hidden" />
+        <wv2:OAuthWebView x:Name="AuthBrowser" />
         <TextBlock Text="Connecting to Genesys Cloud..."
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
