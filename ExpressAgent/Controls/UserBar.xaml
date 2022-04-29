@@ -84,5 +84,6 @@
                 </MultiBinding>
             </controls:NewCall.Visibility>
         </controls:NewCall>
+        <controls:NotResponding />
     </StackPanel>
 </UserControl>

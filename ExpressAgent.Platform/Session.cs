@@ -76,7 +76,7 @@ namespace ExpressAgent.Platform
             {
                 ConversationEventDelegate = Conversations.HandleConversationEvent,
                 PresenceEventDelegate = Presence.HandlePresenceEvent,
-                RoutingStatusEventDelegate = Presence.HandleRoutingStatusEvent
+                RoutingStatusEventDelegate = Users.HandleRoutingStatusEvent
             };
 
             Presence.SetInitialPresence();
