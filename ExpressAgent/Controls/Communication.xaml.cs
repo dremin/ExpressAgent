@@ -70,7 +70,7 @@ namespace ExpressAgent.Controls
 
         private void WrapUpButton_Click(object sender, RoutedEventArgs e)
         {
-            _Communication.Participant.SetWrapUp((string)WrapUpComboBox.SelectedValue);
+            _Communication.Participant.SetWrapUp((string)WrapUpComboBox.SelectedValue, WrapUpNotes.Text);
         }
 
         private void WrapUpComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

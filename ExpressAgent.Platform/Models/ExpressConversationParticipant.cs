@@ -204,11 +204,11 @@ namespace ExpressAgent.Platform.Models
             return _Conversation.ConversationService.GetConversationParticipantWrapupCodes(_Conversation.Id, Id);
         }
 
-        public void SetWrapUp(string code)
+        public void SetWrapUp(string code, string notes)
         {
             MediaParticipantRequest body = new MediaParticipantRequest()
             {
-                Wrapup = new Wrapup(code)
+                Wrapup = new Wrapup(Code: code, Notes: notes)
             };
 
             _Conversation.ConversationService.UpdateParticipant(_Conversation.Id, Id, body);

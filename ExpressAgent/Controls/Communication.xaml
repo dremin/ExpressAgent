@@ -35,6 +35,12 @@
                 <Setter Property="Padding"
                         Value="7,0" />
             </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="Margin"
+                        Value="2,2,2,0" />
+                <Setter Property="Padding"
+                        Value="2" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Orientation="Horizontal">
@@ -87,7 +93,7 @@
             Disconnect
         </Button>
         <!-- Wrapup is required if communication still exists in disconnected or terminated state -->
-        <StackPanel Orientation="Horizontal"
+        <StackPanel Orientation="Vertical"
                     IsVisibleChanged="StackPanel_IsVisibleChanged">
             <StackPanel.Visibility>
                 <MultiBinding Converter="{StaticResource stateConverter}"
@@ -98,16 +104,25 @@
                     <Binding Source="{StaticResource terminatedState}" />
                 </MultiBinding>
             </StackPanel.Visibility>
-            <TextBlock Text="Wrap-up code: "
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Wrap-up code: "
+                               VerticalAlignment="Center"/>
+                <ComboBox Name="WrapUpComboBox"
+                          Width="150"
+                          SelectionChanged="WrapUpComboBox_SelectionChanged" />
+                <Button Name="WrapUpButton"
+                        Click="WrapUpButton_Click"
+                        IsEnabled="False">
+                    Done
+                </Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Notes: "
+                           DockPanel.Dock="Left"
                            VerticalAlignment="Center"/>
-            <ComboBox Name="WrapUpComboBox"
-                      Width="150"
-                      SelectionChanged="WrapUpComboBox_SelectionChanged" />
-            <Button Name="WrapUpButton"
-                    Click="WrapUpButton_Click"
-                    IsEnabled="False">
-                Done
-            </Button>
+                <TextBox Name="WrapUpNotes"
+                         Width="268"/>
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </UserControl>
